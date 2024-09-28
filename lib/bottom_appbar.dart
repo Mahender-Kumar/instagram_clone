@@ -51,22 +51,27 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
           showUnselectedLabels: false,
           currentIndex: _selectedIndex,
           onTap: _onItemTapped, // Handle tap events
-          items: const <BottomNavigationBarItem>[
+          items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              activeIcon: Icon(Icons.home_filled),
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home_sharp),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.search),
+              icon: Icon(Icons.search_sharp),
+              activeIcon: Icon(Icons.search_rounded),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
+              icon: Icon(Icons.add_box_outlined),
+              activeIcon: Icon(
+                Icons.add_box,
+              ),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.movie_creation_rounded),
+              activeIcon: Icon(Icons.movie_creation_rounded),
+              icon: Icon(Icons.movie_creation_outlined),
               label: '',
             ),
             BottomNavigationBarItem(
@@ -74,6 +79,20 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
                 radius: 12,
                 backgroundImage: NetworkImage(
                     'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
+              ),
+              activeIcon: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 1,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  radius: 12,
+                  backgroundImage: NetworkImage(
+                      'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
+                ),
               ),
               label: '',
             ),

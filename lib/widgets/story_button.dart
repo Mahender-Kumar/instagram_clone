@@ -189,13 +189,24 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       body: Stack(
         children: [
           GestureDetector(
-            onHorizontalDragEnd: (details) {
-              if (!_isPaused) {
-                if (details.velocity.pixelsPerSecond.dx < 0) {
-                  _onTapRight();
-                } else {
+           
+            onTapDown: (TapDownDetails details) {
+              // Get the tap position
+              double tapX = details.globalPosition.dx;
+              // Get the width of the screen
+              double screenWidth = MediaQuery.of(context).size.width;
+
+              if (tapX < screenWidth / 2) {
+                // Left side tapped
+                print('Left side tapped');
                   _onTapLeft();
-                }
+
+              } else {
+                // Right side tapped
+                print('Right side tapped');
+                  _onTapRight();
+
+
               }
             },
             onLongPressStart: (_) => _onHold(), // Pause on hold
@@ -238,22 +249,24 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Circular Indicator
+                          // Background color (Grey for future stories, White for completed stories)
                           Container(
                             decoration: BoxDecoration(
-                              color: _currentIndex <= index
-                                  ? Colors.grey
-                                  : Colors.white,
+                              color: _currentIndex > index
+                                  ? Colors
+                                      .white // Completed stories are solid white
+                                  : Colors
+                                      .grey, // Future and current stories start as grey
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                           ),
-                          // Linear Progress Indicator
+                          // Progress bar for the current story
                           if (_currentIndex == index)
                             LinearProgressIndicator(
                               value: _progress,
                               backgroundColor: Colors.transparent,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white), // Change to desired color
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors
+                                  .white), // Progress bar fills with white
                             ),
                         ],
                       ),
@@ -262,14 +275,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 }),
               ),
             );
-          }),
+          })
         ],
       ),
     );
   }
 }
 
- 
 class TitleListTile extends StatelessWidget {
   const TitleListTile({super.key});
 

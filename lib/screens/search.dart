@@ -15,13 +15,12 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // backgroundColor: mobileBackgroundColor,
+        backgroundColor: Colors.transparent,
         title: Form(
           child: TextFormField(
             controller: searchController,
             decoration: InputDecoration(
               filled: true,
-              
               fillColor: Colors.grey[800],
               contentPadding: EdgeInsets.all(0),
               labelText: 'Search',

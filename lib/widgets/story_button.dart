@@ -1,10 +1,14 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/models/story.dart';
 import 'package:instagram_clone/models/user.dart';
+import 'package:instagram_clone/widgets/story/components/stories_list_skeleton.dart';
+import 'package:instagram_clone/widgets/story/story_image.dart';
 import 'package:instagram_clone/widgets/video_player.dart';
 import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
 
 class StoryButton extends StatelessWidget {
   User user;
@@ -51,19 +55,33 @@ class StoryButton extends StatelessWidget {
                 ),
               ),
               child: Container(
-                padding:
-                    const EdgeInsets.all(2.0), // Gap between border and image
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black, // Background color for the gap
-                ),
-                child: CircleAvatar(
-                  radius: 36,
-                  backgroundImage: NetworkImage(
-                    user.profilePicture,
+                  padding:
+                      const EdgeInsets.all(2.0), // Gap between border and image
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black, // Background color for the gap
                   ),
-                ),
-              ),
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: user.profilePicture,
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => StoriesListSkeletonAlone(
+                        width: 72,
+                        height: 72,
+                      ),
+                      errorWidget: (context, url, error) =>
+                          Icon(Icons.error, size: 72),
+                    ),
+                  )
+                  // CircleAvatar(
+                  //   radius: 36,
+                  //   backgroundImage: NetworkImage(
+                  //     user.profilePicture,
+                  //   ),
+                  // ),
+                  ),
             ),
           ),
         ),
@@ -84,10 +102,10 @@ class StoryDetailPage extends StatefulWidget {
   final int initialIndex;
 
   const StoryDetailPage({
-    super.key,
+    Key? key,
     required this.stories,
     required this.initialIndex,
-  });
+  }) : super(key: key);
 
   @override
   _StoryDetailPageState createState() => _StoryDetailPageState();
@@ -97,7 +115,6 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   late PageController _pageController;
   late int _currentIndex;
   late double _progress; // Variable to track progress
-  Timer? _progressTimer; // Timer for progress
   bool _isPaused = false; // To track whether progress is paused
 
   @override
@@ -112,46 +129,21 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
         _resetProgress(); // Reset progress when changing stories
       });
     });
-    _startProgressTimer(); // Start the timer for progress
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _progressTimer?.cancel(); // Cancel the timer
     super.dispose();
   }
 
-  void _startProgressTimer() {
-    _progressTimer?.cancel(); // Cancel any existing timer
-    _progress = 0.0; // Reset progress
-    _progressTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      if (!_isPaused) {
-        setState(() {
-          _progress += 0.01; // Increment progress
-        });
-        if (_progress >= 1.0) {
-          _onVideoEnd(); // Go to next story when progress is complete
-        }
-      }
+  void _resetProgress() {
+    setState(() {
+      _progress = 0.0; // Reset progress
     });
   }
 
-  void _resetProgress() {
-    _progress = 0.0; // Reset progress
-    _startProgressTimer(); // Restart timer for new story
-  }
-
-  void _onTapLeft() {
-    if (_currentIndex > 0) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void _onTapRight() {
+  void _onVideoEnd() {
     if (_currentIndex < widget.stories.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -160,26 +152,27 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     }
   }
 
-  void _onVideoEnd() {
-    if (_currentIndex < widget.stories.length - 1) {
-      _onTapRight();
+  void _updateProgress(VideoPlayerController controller) {
+    if (controller.value.isInitialized) {
+      double progress = controller.value.position.inSeconds.toDouble() /
+          controller.value.duration.inSeconds.toDouble();
+      setState(() {
+        _progress =
+            progress.clamp(0.0, 1.0); // Ensure progress is between 0 and 1
+      });
     }
   }
 
-  // Pause progress and video on hold
   void _onHold() {
     setState(() {
       _isPaused = true; // Pause the linear progress
     });
-    // TODO: Implement pausing video logic if using a video player.
   }
 
-  // Resume progress and video on release
   void _onRelease() {
     setState(() {
       _isPaused = false; // Resume linear progress
     });
-    // TODO: Implement resuming video logic if using a video player.
   }
 
   @override
@@ -189,93 +182,87 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       body: Stack(
         children: [
           GestureDetector(
-           
             onTapDown: (TapDownDetails details) {
-              // Get the tap position
               double tapX = details.globalPosition.dx;
-              // Get the width of the screen
               double screenWidth = MediaQuery.of(context).size.width;
 
               if (tapX < screenWidth / 2) {
-                // Left side tapped
-                print('Left side tapped');
-                  _onTapLeft();
-
+                _pageController.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               } else {
-                // Right side tapped
-                print('Right side tapped');
-                  _onTapRight();
-
-
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               }
             },
             onLongPressStart: (_) => _onHold(), // Pause on hold
             onLongPressEnd: (_) => _onRelease(), // Resume on release
             child: PageView.builder(
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: widget.stories.length,
               controller: _pageController,
               itemBuilder: (context, index) {
                 final story = widget.stories[index];
+                final ImageLoader imageLoader = ImageLoader(story.mediaUrl);
                 return story.mediaType == 'image'
                     ? Center(
                         child: Hero(
-                          tag: story.mediaUrl,
-                          child: Image.network(
-                            story.mediaUrl,
-                            fit: BoxFit.fill,
-                          ),
-                        ),
+                            tag: story.mediaUrl, child: StoryImage(imageLoader)
+                            // Image.network(
+                            //   story.mediaUrl,
+                            //   fit: BoxFit.fill,
+                            // ),
+                            ),
                       )
                     : VideoApp(
                         onVideoEnd: _onVideoEnd,
                         videoUrl: story.mediaUrl,
-                        isPaused: _isPaused, // Pass pause state to VideoApp
+                        isPaused: _isPaused,
+                        onProgressUpdate: (controller) =>
+                            _updateProgress(controller),
                       );
               },
             ),
           ),
-          Consumer(builder: (context, ref, child) {
-            return Positioned(
-              top: 80,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(widget.stories.length, (index) {
-                  return Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                      height: 2.0,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Background color (Grey for future stories, White for completed stories)
-                          Container(
-                            decoration: BoxDecoration(
-                              color: _currentIndex > index
-                                  ? Colors
-                                      .white // Completed stories are solid white
-                                  : Colors
-                                      .grey, // Future and current stories start as grey
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
+          Positioned(
+            top: 80,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.stories.length, (index) {
+                return Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                    height: 2.0,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _currentIndex > index
+                                ? Colors.white
+                                : Colors.grey,
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
-                          // Progress bar for the current story
-                          if (_currentIndex == index)
-                            LinearProgressIndicator(
-                              value: _progress,
-                              backgroundColor: Colors.transparent,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors
-                                  .white), // Progress bar fills with white
-                            ),
-                        ],
-                      ),
+                        ),
+                        if (_currentIndex == index)
+                          LinearProgressIndicator(
+                            value: _progress,
+                            backgroundColor: Colors.transparent,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                      ],
                     ),
-                  );
-                }),
-              ),
-            );
-          })
+                  ),
+                );
+              }),
+            ),
+          ),
         ],
       ),
     );

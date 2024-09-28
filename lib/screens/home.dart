@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagram_clone/models/story.dart';
 import 'package:instagram_clone/models/user.dart';
+import 'package:instagram_clone/widgets/story/components/stories_list_skeleton.dart';
 import 'package:instagram_clone/widgets/story_button.dart';
 import 'package:http/http.dart' as http;
 
@@ -128,13 +129,95 @@ class _HomeState extends State<Home> {
                   future: futureAlbum, // Your future that fetches user data
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                          child: CircularProgressIndicator()); // Loading state
+                      return Container(
+                        height: 120, // Set a height for the container
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          primary: false,
+                          shrinkWrap: true,
+                          itemCount: 3,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  InkWell(
+                                    child: Container(
+                                      width: 72,
+                                      height: 72,
+                                      child: Stack(
+                                        children: <Widget>[
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(36)),
+                                            child: StoriesListSkeletonAlone(
+                                              width: 72,
+                                              height: 72,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(' ')
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
                     }
+
+                    //   Center(
+                    //       child: CircularProgressIndicator()); // Loading state
+                    // }
                     if (snapshot.hasError) {
-                      return Center(
-                          child: Text(
-                              'Error: ${snapshot.error}')); // Display error
+                      return Container(
+                        height: 120, // Set a height for the container
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          primary: false,
+                          shrinkWrap: true,
+                          itemCount: 3,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  InkWell(
+                                    child: Container(
+                                      width: 72,
+                                      height: 72,
+                                      child: Stack(
+                                        children: <Widget>[
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(36)),
+                                            child: StoriesListSkeletonAlone(
+                                              width: 72,
+                                              height: 72,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(' ')
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                      // return Center(
+                      //     child: Text(
+                      //         'Error: ${snapshot.error}')); // Display error
                     }
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return Center(
@@ -150,8 +233,7 @@ class _HomeState extends State<Home> {
                       mainAxisSize: MainAxisSize.min,
                       children: List.generate(userDocs.length, (index) {
                         final user = userDocs[index];
-                        final String imageUrl = user
-                            .profilePicture; // Fetch the profile picture URL
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal:
@@ -159,11 +241,6 @@ class _HomeState extends State<Home> {
                           child: StoryButton(
                             user: user,
                             tag: '${user.userName}$index',
-                            // onPressed: () {
-                            //   // Define what happens when the button is pressed
-                            //   print(
-                            //       'Story button tapped for user: ${user['user_name']}');
-                            // },
                           ),
                         );
                       }),

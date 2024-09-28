@@ -18,10 +18,10 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
   // List of screens to navigate
   final List<Widget> _screens = <Widget>[
     Home(),
-    Search(),
-    Post(),
+    SearchScreen(),
+    AddPostScreen(),
     Reels(),
-    Profile(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {

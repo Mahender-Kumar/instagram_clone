@@ -338,6 +338,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     }
   }
 
+  void _onVideoEnd() {
+    // Move to the next story when the video ends
+    if (_currentIndex < widget.stories.length - 1) {
+      _onTapRight();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -345,7 +352,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       body: Stack(
         children: [
           GestureDetector(
-            onTap: _onTapRight, // Change story on right tap
+            // onTap: _onTapRight, // Change story on right tap
             onHorizontalDragEnd: (details) {
               if (details.velocity.pixelsPerSecond.dx < 0) {
                 _onTapRight(); // Swipe left to next story
@@ -370,7 +377,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                           ),
                         ),
                       )
-                    : VideoApp();
+                    : VideoApp(
+                        onVideoEnd: _onVideoEnd,
+                        videoUrl: story
+                              .mediaUrl,
+                      ); // Pass the callback
               },
             ),
           ),

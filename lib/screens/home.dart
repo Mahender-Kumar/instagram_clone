@@ -184,9 +184,11 @@ class _HomeState extends State<Home> {
           // StoryButton(),
           ListView(
             shrinkWrap: true,
+            physics: const ScrollPhysics(),
             children: [
               ListView.builder(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: 5,
                 itemBuilder: (context, index) {
                   return Column(

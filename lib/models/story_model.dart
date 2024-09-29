@@ -1,38 +1,57 @@
-class Story {
-  final int storyId;
-  final String mediaUrl;
-  final String mediaType; // Could be "image" or "video"
-  final DateTime timestamp;
-  final String text;
-  final String textDescription;
+import 'package:instagram_clone/models/user_model.dart';
 
-  Story({
-    required this.storyId,
-    required this.mediaUrl,
-    required this.mediaType,
-    required this.timestamp,
-    required this.text,
-    required this.textDescription,
-  });
+enum MediaType { image, video }
+
+class Story {
+  final int? storyId;
+  final String url;
+  final MediaType media; // Could be "image" or "video"
+  final DateTime? timestamp;
+  final String? text;
+  final String? textDescription;
+  final Duration? duration;
+  // final User user;
+
+  Story(
+      {this.storyId,
+      required this.url,
+      required this.media,
+      this.timestamp,
+      this.text,
+      this.textDescription,
+      // required this.user,
+      this.duration = const Duration(seconds: 5)});
 
   factory Story.fromJson(Map<String, dynamic> json) {
     // print(json['timestamp'].runtimeType);
     return Story(
       storyId: json['story_id'],
-      mediaUrl: json['media_url'],
-      mediaType: json['media_type'],
+      url: json['media_url'],
+      media: json['media_type'] == null
+          ? json['media_url'].toString().split('.').last.trim().toLowerCase() ==
+                  'mp4'
+              ? MediaType.video
+              : MediaType.image
+          : json['media_type'] == 'image'
+              ? MediaType.image
+              : MediaType.video,
       timestamp: parseDateString(json['timestamp']),
       text: json['text'],
       textDescription: json['text_description'],
+      // user: User(
+      //   userId: json['user_id']??0,
+      //   name: json['user_name']??'',
+      //   profileImageUrl: json['profile_picture']??'',
+      // )
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'story_id': storyId,
-      'media_url': mediaUrl,
-      'media_type': mediaType,
-      'timestamp': timestamp.toIso8601String(),
+      'media_url': url,
+      'media_type': media,
+      'timestamp': timestamp?.toIso8601String(),
       'text': text,
       'text_description': textDescription,
     };

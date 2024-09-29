@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:instagram_clone/models/story.dart';
+import 'package:instagram_clone/models/story_model.dart';
 
 class ImageView extends StatelessWidget {
   ImageView({
@@ -24,7 +24,7 @@ class ImageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CachedNetworkImage(
-      imageUrl: story.mediaUrl,
+      imageUrl: story.url,
       fit: BoxFit.fill,
       filterQuality: FilterQuality.high,
       // Optionally provide a placeholder while the image is loading

@@ -15,12 +15,12 @@ class StoryFeedView extends ConsumerStatefulWidget {
   const StoryFeedView({
     Key? key,
     required this.stories,
-    required this.herotagString,
+    // required this.herotagString,
     this.initialPage = 0,
   }) : super(key: key);
 
   final List<dynamic> stories;
-  final String herotagString;
+  // final String herotagString;
   final int? initialPage;
   @override
   _StoryFeedViewState createState() => _StoryFeedViewState();
@@ -215,7 +215,7 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                                                       horizontal: 1.5,
                                                       vertical: 10.0),
                                               child: Hero(
-                                                  tag: widget.herotagString,
+                                                  tag: '${users[index].userId}',
                                                   child: Row(
                                                     children: [
                                                       Expanded(

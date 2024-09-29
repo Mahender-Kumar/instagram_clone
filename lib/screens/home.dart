@@ -214,7 +214,8 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                                                 //       ),
                                                 //       story: stories),
                                                 // ],
-                                                herotagString: '${user.userId}'),
+                                                // herotagString: '${user.userId}',
+                                                ),
                                           ),
                                         )
                                         .then((value) =>
@@ -472,7 +473,8 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                     //       ),
                     //       story: stories),
                     // ],
-                    herotagString: 'index$index'),
+                    // herotagString: 'index$index',
+                    ),
               ),
             )
             .then((value) => setState(() => rect = null));

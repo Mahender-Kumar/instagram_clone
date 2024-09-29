@@ -17,7 +17,7 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
 
   // List of screens to navigate
   final List<Widget> _screens = <Widget>[
-    const Home(),
+     Home(),
     const SearchScreen(),
     const AddPostScreen(),
     const Reels(),

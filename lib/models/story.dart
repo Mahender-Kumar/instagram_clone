@@ -16,7 +16,7 @@ class Story {
   });
 
   factory Story.fromJson(Map<String, dynamic> json) {
-    print(json['timestamp'].runtimeType);
+    // print(json['timestamp'].runtimeType);
     return Story(
       storyId: json['story_id'],
       mediaUrl: json['media_url'],

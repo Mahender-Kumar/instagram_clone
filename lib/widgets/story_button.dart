@@ -5,106 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:instagram_clone/models/story.dart';
 import 'package:instagram_clone/models/user.dart';
 import 'package:instagram_clone/widgets/story/components/stories_list_skeleton.dart';
-import 'package:instagram_clone/widgets/story/story_image.dart';
+
 import 'package:instagram_clone/widgets/video_player.dart';
-import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
-
-class StoryButton extends StatelessWidget {
-  User user;
-
-  String tag;
-
-  StoryButton({super.key, required this.user, required this.tag});
-
-  void _onStoryTap(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => StoryDetailPage(
-          stories: [
-            ...user.stories,
-          ],
-          initialIndex: 0,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        InkWell(
-          onTap: () {
-            _onStoryTap(context);
-          },
-          splashColor: Colors.transparent,
-          child: Hero(
-            tag: tag,
-            child: Container(
-              padding: const EdgeInsets.all(
-                  2.0), // Padding to create a gap between the border and the avatar
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [Colors.pink, Colors.orange, Colors.yellow],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Container(
-                  padding:
-                      const EdgeInsets.all(2.0), // Gap between border and image
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black, // Background color for the gap
-                  ),
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: user.profilePicture,
-                      width: 72,
-                      height: 72,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => StoriesListSkeletonAlone(
-                        width: 72,
-                        height: 72,
-                      ),
-                      errorWidget: (context, url, error) =>
-                          Icon(Icons.error, size: 72),
-                    ),
-                  )
-                  // CircleAvatar(
-                  //   radius: 36,
-                  //   backgroundImage: NetworkImage(
-                  //     user.profilePicture,
-                  //   ),
-                  // ),
-                  ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          user.userName,
-          style: TextStyle(
-            fontSize: 10,
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class StoryDetailPage extends StatefulWidget {
   final List<Story> stories;
   final int initialIndex;
+  final User? tappedUserData;
+  final dynamic futureAlbum;
 
   const StoryDetailPage({
     Key? key,
     required this.stories,
     required this.initialIndex,
+    this.tappedUserData,
+    this.futureAlbum,
   }) : super(key: key);
 
   @override
@@ -113,6 +29,7 @@ class StoryDetailPage extends StatefulWidget {
 
 class _StoryDetailPageState extends State<StoryDetailPage> {
   late PageController _pageController;
+
   late int _currentIndex;
   late double _progress; // Variable to track progress
   bool _isPaused = false; // To track whether progress is paused
@@ -134,6 +51,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   @override
   void dispose() {
     _pageController.dispose();
+    // storyController.dispose();
+
     super.dispose();
   }
 
@@ -175,95 +94,134 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     });
   }
 
+  _navigateBack() {
+    return Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+      (_) => false,
+      arguments: 'back_from_stories_view',
+    );
+  }
+
+  // void _onStoryShow(StoryItem s) {}
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          GestureDetector(
-            onTapDown: (TapDownDetails details) {
-              double tapX = details.globalPosition.dx;
-              double screenWidth = MediaQuery.of(context).size.width;
-
-              if (tapX < screenWidth / 2) {
-                _pageController.previousPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              } else {
-                _pageController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }
-            },
-            onLongPressStart: (_) => _onHold(), // Pause on hold
-            onLongPressEnd: (_) => _onRelease(), // Resume on release
-            child: PageView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: widget.stories.length,
-              controller: _pageController,
-              itemBuilder: (context, index) {
-                final story = widget.stories[index];
-                final ImageLoader imageLoader = ImageLoader(story.mediaUrl);
-                return story.mediaType == 'image'
-                    ? Center(
-                        child: Hero(
-                            tag: story.mediaUrl, child: StoryImage(imageLoader)
-                            // Image.network(
-                            //   story.mediaUrl,
-                            //   fit: BoxFit.fill,
-                            // ),
-                            ),
-                      )
-                    : VideoApp(
-                        onVideoEnd: _onVideoEnd,
-                        videoUrl: story.mediaUrl,
-                        isPaused: _isPaused,
-                        onProgressUpdate: (controller) =>
-                            _updateProgress(controller),
-                      );
-              },
-            ),
-          ),
-          Positioned(
-            top: 80,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(widget.stories.length, (index) {
-                return Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                    height: 2.0,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: _currentIndex > index
-                                ? Colors.white
-                                : Colors.grey,
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        if (_currentIndex == index)
-                          LinearProgressIndicator(
-                            value: _progress,
-                            backgroundColor: Colors.transparent,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                      ],
+    return WillPopScope(
+      onWillPop: () {
+        _navigateBack();
+        return Future.value(false);
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Container(
+          color: Colors.black,
+          child: FutureBuilder(
+              future: widget.futureAlbum,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.grey[700],
                     ),
-                  ),
+                  );
+                }
+                return Stack(
+                  children: [
+                    GestureDetector(
+                      onTapDown: (TapDownDetails details) {
+                        double tapX = details.globalPosition.dx;
+                        double screenWidth = MediaQuery.of(context).size.width;
+
+                        if (tapX < screenWidth / 2) {
+                          _pageController.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        } else {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                      onLongPressStart: (_) => _onHold(), // Pause on hold
+                      onLongPressEnd: (_) => _onRelease(), // Resume on release
+                      child: PageView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: widget.stories.length,
+                        controller: _pageController,
+                        itemBuilder: (context, index) {
+                          final story = widget.stories[index];
+                          // final ImageLoader imageLoader =
+                          //     ImageLoader(story.mediaUrl);
+                          // final VideoLoader videoLoader =
+                          //     VideoLoader(story.mediaUrl);
+                          return story.mediaType == 'image'
+                              ? Center(
+                                  child: Hero(
+                                      tag: story.mediaUrl,
+                                      child: 
+                                      Image.network(
+                                        story.mediaUrl,
+                                        fit: BoxFit.fill,
+                                      ),
+                                      ),
+                                )
+                              : 
+                              // StoryVideo(videoLoader);
+                          VideoApp(
+                              onVideoEnd: _onVideoEnd,
+                              videoUrl: story.mediaUrl,
+                              isPaused: _isPaused,
+                              onProgressUpdate: (controller) =>
+                                  _updateProgress(controller),
+                            );
+                        },
+                      ),
+                    ),
+                    Positioned(
+                      top: 80,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(widget.stories.length, (index) {
+                          return Expanded(
+                            child: Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 2.0),
+                              height: 2.0,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: _currentIndex > index
+                                          ? Colors.white
+                                          : Colors.grey,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                  if (_currentIndex == index)
+                                    LinearProgressIndicator(
+                                      value: _progress,
+                                      backgroundColor: Colors.transparent,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                              Colors.white),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
                 );
               }),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -274,15 +232,34 @@ class TitleListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return const ListTile(
       leading: CircleAvatar(
         radius: 36,
         backgroundImage: NetworkImage(
           'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
         ),
       ),
-      title: const Text('Stories'),
-      trailing: const Icon(Icons.arrow_forward),
+      title: Text('Stories'),
+      trailing: Icon(Icons.arrow_forward),
     );
+  }
+}
+
+class NoAnimationMaterialPageRoute<T> extends MaterialPageRoute<T> {
+  NoAnimationMaterialPageRoute({
+    required WidgetBuilder builder,
+    RouteSettings? settings,
+    bool maintainState = true,
+    bool fullscreenDialog = false,
+  }) : super(
+            builder: builder,
+            maintainState: maintainState,
+            settings: settings,
+            fullscreenDialog: fullscreenDialog);
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    return child;
   }
 }

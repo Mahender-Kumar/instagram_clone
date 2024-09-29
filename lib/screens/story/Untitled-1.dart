@@ -9,19 +9,17 @@ import 'package:instagram_clone/models/story_model.dart';
 import 'package:instagram_clone/screens/story/bar.dart';
 import 'package:instagram_clone/screens/story/user_info.dart';
 import 'package:instagram_clone/services.dart';
+import 'package:instagram_clone/widgets/image_view.dart';
 import 'package:video_player/video_player.dart';
 
 class StoryFeedView extends ConsumerStatefulWidget {
   const StoryFeedView({
     Key? key,
-    required this.stories,
-    // required this.herotagString,
     this.initialPage = 0,
   }) : super(key: key);
 
-  final List<dynamic> stories;
-  // final String herotagString;
   final int? initialPage;
+
   @override
   _StoryFeedViewState createState() => _StoryFeedViewState();
 }
@@ -44,23 +42,6 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _pageController!.addListener(_listener);
     });
-    final Story firstStory = widget.stories.first;
-    _loadStory(story: firstStory, animationToPage: false);
-    _animationController!.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _animationController!.stop();
-        _animationController!.reset();
-        setState(() {
-          if (_currentIndex + 1 < widget.stories.length) {
-            _currentIndex += 1;
-            _loadStory(story: widget.stories[_currentIndex]);
-          } else {
-            _currentIndex = 0;
-            _loadStory(story: widget.stories[_currentIndex]);
-          }
-        });
-      }
-    });
   }
 
   @override
@@ -79,7 +60,7 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
 
   @override
   Widget build(BuildContext context) {
-    final Story story = widget.stories[_currentIndex];
+    // final Story story = ref.read(userProvider).value!.stories![_currentIndex];
 
     var borderside = const BorderSide(
       color: Colors.white,
@@ -118,9 +99,9 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                         transform.setEntry(3, 2, 0.003);
                         transform
                             .rotateY(double.parse('${-degToRad(rotationY!)}'));
-                        _childpageController = PageController(initialPage: 0);
                         return GestureDetector(
-                          onTapDown: (details) => _onTapDown(details, story),
+                          // onTapDown: (details) => _onTapDown(details,
+                          //     users[index].stories![0], users[index].stories!),
                           onVerticalDragUpdate: (details) =>
                               Navigator.of(context).pop(),
                           child: Transform(
@@ -140,23 +121,26 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                                       itemBuilder: (context, index2) {
                                         final Story story =
                                             users[index].stories![index2];
-                                        print(
-                                            'user herer${users[index2].stories!.length}');
-                                        print('user herer${story.media}');
-                                        print('user herer ${story.url}');
-
+                                        print(' index$index');
+                                        print(' index2$index2');
                                         switch (story.media) {
                                           case MediaType.image:
-                                            return CachedNetworkImage(
-                                              imageUrl: story.url,
-                                              fit: BoxFit.cover,
+                                            print('oasdasdbject${story.media}');
+                                            print(
+                                                'oasdasdbject${story.storyId}');
+                                            return ImageView(
+                                              story: story,
                                             );
+                                          // CachedNetworkImage(
+                                          //   imageUrl: story.url,
+                                          //   fit: BoxFit.cover,
+                                          // );
 
                                           case MediaType.video:
                                             if (_videoPlayerController!
                                                 .value.isInitialized) {
                                               return FittedBox(
-                                                fit: BoxFit.contain,
+                                                fit: BoxFit.cover,
                                                 child: SizedBox(
                                                   width: _videoPlayerController!
                                                       .value.size.width,
@@ -257,7 +241,6 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                                                 child: const Icon(
                                                   Icons.camera_alt_rounded,
                                                   color: Colors.white,
-                                                  size: 18,
                                                 ),
                                               ),
                                             ),
@@ -270,11 +253,9 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                                                 decoration: InputDecoration(
                                                     errorBorder: outlineInput,
                                                     hintText: 'Send Message',
-                                                    hintStyle: const TextStyle(
-                                                        color: Colors.white),
                                                     disabledBorder: outlineInput.copyWith(
-                                                        borderSide:
-                                                            borderside.copyWith(
+                                                        borderSide: borderside
+                                                            .copyWith(
                                                                 color: Colors
                                                                     .grey
                                                                     .shade300)),
@@ -288,17 +269,18 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                                                     border: outlineInput,
                                                     isDense: true,
                                                     suffixIconConstraints:
-                                                        const BoxConstraints(
-                                                            maxHeight: 32,
-                                                            maxWidth: 32),
+                                                        const BoxConstraints(),
+                                                    contentPadding:
+                                                        const EdgeInsets
+                                                            .fromLTRB(
+                                                            12, 12, 12, 12),
                                                     suffixIcon: const Padding(
-                                                        padding: EdgeInsets.only(
-                                                            right: 8),
+                                                        padding:
+                                                            EdgeInsets.only(),
                                                         child: Icon(
                                                           Icons
                                                               .more_vert_rounded,
                                                           color: Colors.white,
-                                                          size: 16,
                                                         ))),
                                               ),
                                             ),
@@ -332,24 +314,25 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
     );
   }
 
-  void _onTapDown(TapDownDetails detalis, Story story) {
+  void _onTapDown(TapDownDetails detalis, Story story, List<Story> stories) {
     final double screenwidth = MediaQuery.of(context).size.width;
     final double dx = detalis.globalPosition.dx;
+
     if (dx < screenwidth / 3) {
       setState(() {
         if (_currentIndex - 1 >= 0) {
           _currentIndex -= 1;
-          _loadStory(story: widget.stories[_currentIndex]);
+          _loadStory(story: stories[_currentIndex], stories: stories);
         }
       });
     } else if (dx > 2 * screenwidth / 3) {
       setState(() {
-        if (_currentIndex + 1 < widget.stories.length) {
+        if (_currentIndex + 1 < stories.length) {
           _currentIndex += 1;
-          _loadStory(story: widget.stories[_currentIndex]);
+          _loadStory(story: stories[_currentIndex], stories: stories);
         } else {
           _currentIndex = 0;
-          _loadStory(story: widget.stories[_currentIndex]);
+          _loadStory(story: stories[_currentIndex], stories: stories);
         }
       });
     } else {
@@ -365,69 +348,67 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
     }
   }
 
-  void _loadStory({required Story story, bool animationToPage = true}) {
+  void _loadStory(
+      {required Story story,
+      bool animationToPage = true,
+      required List<Story> stories}) {
     _animationController!.stop();
     _animationController!.reset();
-    switch (story.media) {
-      case MediaType.image:
-        print('2object${story.media}this');
-        _animationController!.duration = story.duration;
-        _animationController!.forward();
-        break;
-      case MediaType.video:
-        print('2object${story.media}');
-        print('2object${story.url}');
-        print('2object${story.storyId}');
-        print('2object${story.timestamp}');
-        _videoPlayerController =
-            VideoPlayerController.networkUrl(Uri.parse(story.url))
-              ..initialize().then((value) {
-                print('2object${story.url}');
-                setState(() {});
-                if (_videoPlayerController!.value.isInitialized) {
-                  _animationController!.duration =
-                      _videoPlayerController!.value.duration;
+    if (story.media == MediaType.image) {
+      print('2object${story.media}this');
+      _animationController!.duration = story.duration;
+      _animationController!.forward();
+    } else if (story.media == MediaType.video) {
+      print('2object${story.media}');
+      print('2object${story.url}');
+      print('2object${story.storyId}');
+      print('2object${story.timestamp}');
+      _videoPlayerController = VideoPlayerController.networkUrl(
+          Uri.parse(story.url))
+        ..initialize().then((value) {
+          setState(() {});
+          if (_videoPlayerController!.value.isInitialized) {
+            _animationController!.duration =
+                _videoPlayerController!.value.duration;
 
-                  _videoPlayerController!.addListener(() {
-                    if (_videoPlayerController!.value.position >=
-                        _videoPlayerController!.value.duration) {
-                      // Move to the next story when the video ends
-                      // Reset the animation controller
-                      _animationController!.stop();
-                      _animationController!.reset();
+            _videoPlayerController!.addListener(() {
+              if (_videoPlayerController!.value.position >=
+                  _videoPlayerController!.value.duration) {
+                // Move to the next story when the video ends
+                // Reset the animation controller
+                _animationController!.stop();
+                _animationController!.reset();
 
-                      // Move to the next story if available, otherwise reset to the first story
-                      setState(() {
-                        if (_currentIndex + 1 < widget.stories.length) {
-                          _currentIndex += 1;
-                          _loadStory(story: widget.stories[_currentIndex]);
-                        } else {
-                          _currentIndex = 0;
-                          _loadStory(story: widget.stories[_currentIndex]);
-                        }
-                      });
-                    }
-                    // If the video is playing, continue the animation
-                    if (_videoPlayerController!.value.isPlaying) {
-                      _animationController!.forward();
-                    } else {
-                      // If the video is paused or buffering, stop the animation
-                      _animationController!.stop();
-                    }
-                  });
-                  _videoPlayerController!.play();
-                  _animationController!.forward();
-                }
-              });
-        break;
-      default:
-    }
-    if (animationToPage) {
-      _childpageController!.animateToPage(
-        _currentIndex,
-        duration: const Duration(milliseconds: 1),
-        curve: Curves.easeInOut,
-      );
+                // Move to the next story if available, otherwise reset to the first story
+                setState(() {
+                  if (_currentIndex + 1 < stories.length) {
+                    _currentIndex += 1;
+                    _loadStory(story: stories[_currentIndex], stories: stories);
+                  } else {
+                    _currentIndex = 0;
+                    _loadStory(story: stories[_currentIndex], stories: stories);
+                  }
+                });
+              }
+              // If the video is playing, continue the animation
+              if (_videoPlayerController!.value.isPlaying) {
+                _animationController!.forward();
+              } else {
+                // If the video is paused or buffering, stop the animation
+                _animationController!.stop();
+              }
+            });
+            _videoPlayerController!.play();
+            _animationController!.forward();
+          }
+          if (animationToPage) {
+            _childpageController!.animateToPage(
+              _currentIndex,
+              duration: const Duration(milliseconds: 1),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
     }
   }
 }

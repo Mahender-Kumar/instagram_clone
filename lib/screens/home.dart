@@ -1,59 +1,28 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:instagram_clone/models/story.dart';
 import 'package:instagram_clone/models/user.dart';
+import 'package:instagram_clone/services.dart';
 import 'package:instagram_clone/widgets/story/components/stories_list_skeleton.dart';
+
 import 'package:instagram_clone/widgets/story_button.dart';
-import 'package:http/http.dart' as http;
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class Home extends ConsumerWidget {
+  Home({super.key});
 
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
   dynamic futureAlbum;
 
-  initState() {
-    super.initState();
-    futureAlbum = fetchUsers();
-  }
+  // Listen to the userProvider
 
 // Assuming User class is defined somewhere
-  Future<List<User>> fetchUsers() async {
-    print('Called fetchUsers');
-    try {
-      final response =
-          await http.get(Uri.parse('https://ixifly.in/flutter/task2'));
-
-      if (response.statusCode == 200) {
-        print('Response body: ${response.body}');
-
-        print('Response received successfully');
-        // Parse the JSON and return a list of users
-        dynamic jsonResponse = jsonDecode(response.body);
-        List<dynamic> jsonData = jsonResponse['data'];
-        print('JSON response: $jsonData');
-
-        return jsonData.map((user) => User.fromJson(user)).toList();
-      } else {
-        print('Error: ${response.statusCode}');
-        throw Exception(
-            'Failed to load users, status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      // Handle any exceptions that occur during the fetch
-      print('An error occurred: $e');
-      throw Exception('Failed to load users: $e');
-    }
-  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    final futureAlbum = ref.watch(userProvider);
+
     return Scaffold(
       body: ListView(
         shrinkWrap: true,
@@ -96,14 +65,61 @@ class _HomeState extends State<Home> {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Stack(
                     children: [
-                      StoryButton(
-                        user: User(
-                            userId: 132123123,
-                            userName: 'Your Story',
-                            profilePicture:
-                                'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
-                            stories: []),
-                        tag: 'mahe',
+                      Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(
+                                2.0), // Padding to create a gap between the border and the avatar
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.pink,
+                                  Colors.orange,
+                                  Colors.yellow
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Container(
+                                padding: const EdgeInsets.all(
+                                    2.0), // Gap between border and image
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors
+                                      .black, // Background color for the gap
+                                ),
+                                child: ClipOval(
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
+                                    width: 72,
+                                    height: 72,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        StoriesListSkeletonAlone(
+                                      width: 72,
+                                      height: 72,
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error, size: 72),
+                                  ),
+                                )
+                                // CircleAvatar(
+                                //   radius: 36,
+                                //   backgroundImage: NetworkImage(
+                                //     user.profilePicture,
+                                //   ),
+                                // ),
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text('Your Story',
+                              style: TextStyle(
+                                fontSize: 10,
+                              )),
+                        ],
                       ),
                       Positioned(
                         right: 4.0,
@@ -118,18 +134,341 @@ class _HomeState extends State<Home> {
                                 width: 2,
                                 color: const Color.fromARGB(255, 11, 6, 6)),
                           ),
-                          child:
-                              Icon(Icons.add, size: 18.0, color: Colors.white),
+                          child: const Icon(Icons.add,
+                              size: 18.0, color: Colors.white),
                         ),
                       ),
                     ],
                   ),
                 ),
-                FutureBuilder<dynamic>(
-                  future: futureAlbum, // Your future that fetches user data
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(
+//                 FutureBuilder<dynamic>(
+//                   future: futureAlbum, // Your future that fetches user data
+//                   builder: (context, snapshot) {
+//                     if (snapshot.connectionState == ConnectionState.waiting) {
+//                       return Container(
+//                         height: 120, // Set a height for the container
+//                         child: ListView.builder(
+//                           scrollDirection: Axis.horizontal,
+//                           primary: false,
+//                           shrinkWrap: true,
+//                           itemCount: 3,
+//                           itemBuilder: (BuildContext context, int index) {
+//                             return Padding(
+//                               padding: const EdgeInsets.symmetric(
+//                                 horizontal: 8.0,
+//                               ),
+//                               child: Column(
+//                                 children: [
+//                                   InkWell(
+//                                     child: Container(
+//                                       width: 72,
+//                                       height: 72,
+//                                       child: Stack(
+//                                         children: <Widget>[
+//                                           ClipRRect(
+//                                             borderRadius:
+//                                                 const BorderRadius.all(
+//                                                     Radius.circular(36)),
+//                                             child: StoriesListSkeletonAlone(
+//                                               width: 72,
+//                                               height: 72,
+//                                             ),
+//                                           ),
+//                                         ],
+//                                       ),
+//                                     ),
+//                                   ),
+//                                   const SizedBox(height: 4),
+//                                   const Text(' ')
+//                                 ],
+//                               ),
+//                             );
+//                           },
+//                         ),
+//                       );
+//                     }
+
+//                     //   Center(
+//                     //       child: CircularProgressIndicator()); // Loading state
+//                     // }
+//                     if (snapshot.hasError) {
+//                       return Container(
+//                         height: 120, // Set a height for the container
+//                         child: ListView.builder(
+//                           scrollDirection: Axis.horizontal,
+//                           primary: false,
+//                           shrinkWrap: true,
+//                           itemCount: 3,
+//                           itemBuilder: (BuildContext context, int index) {
+//                             return Padding(
+//                               padding: const EdgeInsets.symmetric(
+//                                 horizontal: 8.0,
+//                               ),
+//                               child: Column(
+//                                 children: [
+//                                   InkWell(
+//                                     child: Container(
+//                                       width: 72,
+//                                       height: 72,
+//                                       child: Stack(
+//                                         children: <Widget>[
+//                                           ClipRRect(
+//                                             borderRadius:
+//                                                 const BorderRadius.all(
+//                                                     Radius.circular(36)),
+//                                             child: StoriesListSkeletonAlone(
+//                                               width: 72,
+//                                               height: 72,
+//                                             ),
+//                                           ),
+//                                         ],
+//                                       ),
+//                                     ),
+//                                   ),
+//                                   const SizedBox(height: 4),
+//                                   const Text(' ')
+//                                 ],
+//                               ),
+//                             );
+//                           },
+//                         ),
+//                       );
+//                       // return Center(
+//                       //     child: Text(
+//                       //         'Error: ${snapshot.error}')); // Display error
+//                     }
+//                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
+//                       return const Center(
+//                           child: Text('No users found.')); // No data state
+//                     }
+
+//                     // Assuming snapshot.data is a List<User>
+//                     final List<User> userDocs = snapshot.data!; // L
+
+//                     return Row(
+//                       mainAxisAlignment: MainAxisAlignment.start,
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       mainAxisSize: MainAxisSize.min,
+//                       children: List.generate(userDocs.length, (index) {
+//                         final user = userDocs[index];
+
+//                         return Padding(
+//                             padding: const EdgeInsets.symmetric(
+//                                 horizontal:
+//                                     8.0), // Optional padding between story buttons
+//                             child: Column(
+//                               mainAxisSize: MainAxisSize.min,
+//                               children: [
+//                                 InkWell(
+//                                   onTap: () {
+// //                                     Navigator.push(
+// //                                       context,
+// //                                       NoAnimationMaterialPageRoute(
+// //                                         builder: (context) => GroupedStory(
+// //                                           futureAlbum: futureAlbum,
+// //                                           // storyData: user.stories,
+
+// //                                           tappedUserData: user,
+
+// //                                           // captionTextStyle:
+// //                                           //     widget.captionTextStyle,
+// //                                           // captionPadding: widget.captionPadding,
+// //                                           // captionMargin: widget.captionMargin,
+// //                                         ),
+// //                                         // settings: RouteSettings(
+// //                                         //   arguments: StoriesListWithPressed(
+// //                                         //       pressedStoryId: story.storyId,
+// //                                         //       storiesIdsList: storiesIdsList),
+// //                                         // ),
+// //                                       ),
+// // //                        ModalRoute.withName('/'),
+// //                                     );
+// //                                     Navigator.push(
+// //                                       context,
+// //                                       NoAnimationMaterialPageRoute(
+// //                                         builder: (context) =>
+// //                                             GroupedStoriesView(
+// //                                               futureAlbum:futureAlbum,
+// //                                           // storyData: user.stories,
+// //                                           tappedUserData: user,
+// //                                           imageStoryDuration:
+// //                                               4,
+// //                                           progressPosition:
+// //                                               ProgressPosition.top,
+// //                                           repeat: false,
+// //                                           inline: false,
+// //                                           backgroundColorBetweenStories:Colors.black,
+// //                                           closeButtonIcon:
+// //                                               Icon(Icons.close, color: Colors.white),
+// //                                           closeButtonBackgroundColor:
+// //                                               Colors.transparent,
+// //                                           sortingOrderDesc:
+// //                                               false,
+// //                                           // captionTextStyle:
+// //                                           //     widget.captionTextStyle,
+// //                                           // captionPadding: widget.captionPadding,
+// //                                           // captionMargin: widget.captionMargin,
+// //                                         ),
+// //                                         // settings: RouteSettings(
+// //                                         //   arguments: StoriesListWithPressed(
+// //                                         //       pressedStoryId: story.storyId,
+// //                                         //       storiesIdsList: storiesIdsList),
+// //                                         // ),
+// //                                       ),
+// // //                        ModalRoute.withName('/'),
+// //                                     );
+//                                     Navigator.push(
+//                                       context,
+//                                       MaterialPageRoute(
+//                                         builder: (context) => StoryDetailPage(
+//                                           stories: [
+//                                             ...user.stories,
+//                                           ],
+//                                           futureAlbum: futureAlbum,
+//                                           initialIndex: 0,
+//                                         ),
+//                                       ),
+//                                     );
+//                                   },
+//                                   splashColor: Colors.transparent,
+//                                   child: Hero(
+//                                     tag: '${user.userId}',
+//                                     child: Container(
+//                                       padding: const EdgeInsets.all(
+//                                           2.0), // Padding to create a gap between the border and the avatar
+//                                       decoration: const BoxDecoration(
+//                                         shape: BoxShape.circle,
+//                                         gradient: LinearGradient(
+//                                           colors: [
+//                                             Colors.pink,
+//                                             Colors.orange,
+//                                             Colors.yellow
+//                                           ],
+//                                           begin: Alignment.topLeft,
+//                                           end: Alignment.bottomRight,
+//                                         ),
+//                                       ),
+//                                       child: Container(
+//                                           padding: const EdgeInsets.all(
+//                                               2.0), // Gap between border and image
+//                                           decoration: const BoxDecoration(
+//                                             shape: BoxShape.circle,
+//                                             color: Colors
+//                                                 .black, // Background color for the gap
+//                                           ),
+//                                           child: ClipOval(
+//                                             child: CachedNetworkImage(
+//                                               imageUrl: user.profilePicture,
+//                                               width: 72,
+//                                               height: 72,
+//                                               fit: BoxFit.cover,
+//                                               placeholder: (context, url) =>
+//                                                   StoriesListSkeletonAlone(
+//                                                 width: 72,
+//                                                 height: 72,
+//                                               ),
+//                                               errorWidget:
+//                                                   (context, url, error) =>
+//                                                       const Icon(Icons.error,
+//                                                           size: 72),
+//                                             ),
+//                                           )
+//                                           // CircleAvatar(
+//                                           //   radius: 36,
+//                                           //   backgroundImage: NetworkImage(
+//                                           //     user.profilePicture,
+//                                           //   ),
+//                                           // ),
+//                                           ),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 const SizedBox(height: 4),
+//                                 Text(
+//                                   user.userName,
+//                                   style: const TextStyle(
+//                                     fontSize: 10,
+//                                   ),
+//                                 ),
+//                               ],
+//                             ));
+//                       }),
+//                     );
+//                   },
+//                 )
+                SizedBox(
+                  height: 120,
+                  child: futureAlbum.when(
+                    data: (users) {
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: users.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          final user = users[index];
+                          return Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  splashColor: Colors.transparent,
+                                  onTap: () {
+                                    // Handle navigation to user stories
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(
+                                        2.0), // Padding to create a gap between the border and the avatar
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.pink,
+                                          Colors.orange,
+                                          Colors.yellow
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(
+                                          2.0), // Gap between border and image
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors
+                                            .black, // Background color for the gap
+                                      ),
+                                      child: ClipOval(
+                                        child: CachedNetworkImage(
+                                          imageUrl: user.profilePicture,
+                                          width: 72,
+                                          height: 72,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              StoriesListSkeletonAlone(
+                                            width: 72,
+                                            height: 72,
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.error, size: 72),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(user.userName,
+                                    style: const TextStyle(fontSize: 10)),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    loading: () =>
+                       Container(
                         height: 120, // Set a height for the container
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -138,7 +477,7 @@ class _HomeState extends State<Home> {
                           itemCount: 3,
                           itemBuilder: (BuildContext context, int index) {
                             return Padding(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 8.0,
                               ),
                               child: Column(
@@ -150,8 +489,9 @@ class _HomeState extends State<Home> {
                                       child: Stack(
                                         children: <Widget>[
                                           ClipRRect(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(36)),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(36)),
                                             child: StoriesListSkeletonAlone(
                                               width: 72,
                                               height: 72,
@@ -162,98 +502,18 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(' ')
+                                  const Text(' ')
                                 ],
                               ),
                             );
                           },
                         ),
-                      );
-                    }
-
-                    //   Center(
-                    //       child: CircularProgressIndicator()); // Loading state
-                    // }
-                    if (snapshot.hasError) {
-                      return Container(
-                        height: 120, // Set a height for the container
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          primary: false,
-                          shrinkWrap: true,
-                          itemCount: 3,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: Column(
-                                children: [
-                                  InkWell(
-                                    child: Container(
-                                      width: 72,
-                                      height: 72,
-                                      child: Stack(
-                                        children: <Widget>[
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(36)),
-                                            child: StoriesListSkeletonAlone(
-                                              width: 72,
-                                              height: 72,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(' ')
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                      // return Center(
-                      //     child: Text(
-                      //         'Error: ${snapshot.error}')); // Display error
-                    }
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
-                          child: Text('No users found.')); // No data state
-                    }
-
-                    // Assuming snapshot.data is a List<User>
-                    final List<User> userDocs = snapshot.data!; // L
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: List.generate(userDocs.length, (index) {
-                        final user = userDocs[index];
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal:
-                                  8.0), // Optional padding between story buttons
-                          child: StoryButton(
-                            user: user,
-                            tag: '${user.userName}$index',
-                          ),
-                        );
-                      }),
-                    );
-                  },
-                )
-
-                // ListView.builder(
-                //   scrollDirection: Axis.horizontal,
-                //   shrinkWrap: true,
-                //   itemCount: 5,
-                //   itemBuilder: (context, index) => Story(),
-                // ),
+                      
+                      ),
+                    error: (error, stack) =>
+                        Center(child: Text('Error: $error')),
+                  ),
+                ),
               ],
             ),
           ),
@@ -270,15 +530,15 @@ class _HomeState extends State<Home> {
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
-                      ListTile(
+                      const ListTile(
                         leading: CircleAvatar(
                           radius: 16,
                           backgroundImage: NetworkImage(
                             'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
                           ),
                         ),
-                        title: const Text('abhishek.vedant'),
-                        trailing: const Icon(Icons.more_vert),
+                        title: Text('abhishek.vedant'),
+                        trailing: Icon(Icons.more_vert),
                       ),
                       Image.network(
                         'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',

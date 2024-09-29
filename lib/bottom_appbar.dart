@@ -17,11 +17,11 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
 
   // List of screens to navigate
   final List<Widget> _screens = <Widget>[
-    Home(),
-    SearchScreen(),
-    AddPostScreen(),
-    Reels(),
-    ProfileScreen(),
+    const Home(),
+    const SearchScreen(),
+    const AddPostScreen(),
+    const Reels(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -42,8 +42,8 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
         ),
         child: BottomNavigationBar(
           // elevation: 13,
-          selectedLabelStyle: TextStyle(fontSize: 0),
-          unselectedLabelStyle: TextStyle(fontSize: 0),
+          selectedLabelStyle: const TextStyle(fontSize: 0),
+          unselectedLabelStyle: const TextStyle(fontSize: 0),
           type: BottomNavigationBarType.fixed,
           showSelectedLabels: false,
           enableFeedback: false,
@@ -52,30 +52,30 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
           currentIndex: _selectedIndex,
           onTap: _onItemTapped, // Handle tap events
           items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home_sharp),
               label: '',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.search_sharp),
               activeIcon: Icon(Icons.search_rounded),
               label: '',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.add_box_outlined),
               activeIcon: Icon(
                 Icons.add_box,
               ),
               label: '',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               activeIcon: Icon(Icons.movie_creation_rounded),
               icon: Icon(Icons.movie_creation_outlined),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: CircleAvatar(
+              icon: const CircleAvatar(
                 radius: 12,
                 backgroundImage: NetworkImage(
                     'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
@@ -88,7 +88,7 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: CircleAvatar(
+                child: const CircleAvatar(
                   radius: 12,
                   backgroundImage: NetworkImage(
                       'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
@@ -99,44 +99,6 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
           ],
         ),
       ),
-      // bottomNavigationBar: BottomAppBar(
-      //   // shape: const CircularNotchedRectangle(),
-      //   // notchMargin: 5.0,
-      //   clipBehavior: Clip.antiAlias,
-      //   child: SizedBox(
-      //     // height: kBottomNavigationBarHeight,
-      //     child: Row(
-      //       mainAxisSize: MainAxisSize.min,
-      //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //       children: <Widget>[
-      //         IconButton(
-      //           icon: const Icon(Icons.home),
-      //           onPressed: () {
-      //             setState(() {});
-      //           },
-      //         ),
-      //         IconButton(
-      //           icon: const Icon(Icons.search),
-      //           onPressed: () {
-      //             setState(() {});
-      //           },
-      //         ),
-      //         IconButton(
-      //           icon: const Icon(Icons.favorite_border_outlined),
-      //           onPressed: () {
-      //             setState(() {});
-      //           },
-      //         ),
-      //         IconButton(
-      //           icon: const Icon(Icons.account_circle_outlined),
-      //           onPressed: () {
-      //             setState(() {});
-      //           },
-      //         )
-      //       ],
-      //     ),
-      //   ),
-      // ),
     );
   }
 }

@@ -189,6 +189,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                                         .push(
                                           FadeRouteBuilder(
                                             page: StoryFeedView(
+                                              initialPage: index,
                                                 stories: user.stories!,
                                                 //  [
                                                 //   UserStoryList(

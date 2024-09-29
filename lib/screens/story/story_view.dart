@@ -12,12 +12,16 @@ import 'package:instagram_clone/services.dart';
 import 'package:video_player/video_player.dart';
 
 class StoryFeedView extends ConsumerStatefulWidget {
-  const StoryFeedView(
-      {Key? key, required this.stories, required this.herotagString})
-      : super(key: key);
+  const StoryFeedView({
+    Key? key,
+    required this.stories,
+    required this.herotagString,
+    this.initialPage = 0,
+  }) : super(key: key);
 
   final List<dynamic> stories;
   final String herotagString;
+  final int? initialPage;
   @override
   _StoryFeedViewState createState() => _StoryFeedViewState();
 }
@@ -34,7 +38,7 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _pageController = PageController(initialPage: widget.initialPage!);
     _childpageController = PageController();
     _animationController = AnimationController(vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -135,7 +139,8 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                                       itemBuilder: (context, index) {
                                         final Story story =
                                             users[index].stories![index];
-                                        print('user herer${users[index].stories!.length}');
+                                        print(
+                                            'user herer${users[index].stories!.length}');
                                         print('user herer${story}');
 
                                         switch (story.media) {
@@ -375,11 +380,15 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
     _animationController!.reset();
     switch (story.media) {
       case MediaType.image:
+        print('2object${story.media}this');
         _animationController!.duration = story.duration;
         _animationController!.forward();
         break;
       case MediaType.video:
+        print('2object${story.media}');
         print('2object${story.url}');
+        print('2object${story.storyId}');
+        print('2object${story.timestamp}');
         _videoPlayerController =
             VideoPlayerController.networkUrl(Uri.parse(story.url))
               ..initialize().then((value) {
@@ -388,6 +397,34 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                 if (_videoPlayerController!.value.isInitialized) {
                   _animationController!.duration =
                       _videoPlayerController!.value.duration;
+
+                  _videoPlayerController!.addListener(() {
+                    if (_videoPlayerController!.value.position >=
+                        _videoPlayerController!.value.duration) {
+                      // Move to the next story when the video ends
+                      // Reset the animation controller
+                      _animationController!.stop();
+                      _animationController!.reset();
+
+                      // Move to the next story if available, otherwise reset to the first story
+                      setState(() {
+                        if (_currentIndex + 1 < widget.stories.length) {
+                          _currentIndex += 1;
+                          _loadStory(story: widget.stories[_currentIndex]);
+                        } else {
+                          _currentIndex = 0;
+                          _loadStory(story: widget.stories[_currentIndex]);
+                        }
+                      });
+                    }
+                    // If the video is playing, continue the animation
+                    if (_videoPlayerController!.value.isPlaying) {
+                      _animationController!.forward();
+                    } else {
+                      // If the video is paused or buffering, stop the animation
+                      _animationController!.stop();
+                    }
+                  });
                   _videoPlayerController!.play();
                   _animationController!.forward();
                 }

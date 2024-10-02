@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'dart:ui'; 
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -81,10 +81,8 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                     .read(userProvider)
                     .value![widget.initialPage]
                     .stories![_currentIndex],
-                stories: ref
-                    .read(userProvider)
-                    .value![widget.initialPage]
-                    .stories!);
+                stories:
+                    ref.read(userProvider).value![widget.initialPage].stories!);
           } else {
             _currentIndex = 0;
             _loadStory(
@@ -92,10 +90,8 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                     .read(userProvider)
                     .value![widget.initialPage]
                     .stories![_currentIndex],
-                stories: ref
-                    .read(userProvider)
-                    .value![widget.initialPage]
-                    .stories!);
+                stories:
+                    ref.read(userProvider).value![widget.initialPage].stories!);
           }
         });
       }
@@ -117,17 +113,13 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
   @override
   void dispose() {
     _videoPlayerController?.dispose();
- 
+
     _pageController!.dispose();
     _childpageController!.dispose();
 
     _animationController!.dispose();
     super.dispose();
   }
-
- 
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -306,7 +298,6 @@ class _StoryFeedViewState extends ConsumerState<StoryFeedView>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Text('$_currentIndex'),
                                         Row(
                                           children: users[index]
                                               .stories!

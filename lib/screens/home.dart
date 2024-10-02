@@ -2,16 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:instagram_clone/models/story_model.dart';
-import 'package:instagram_clone/models/user_model.dart';
-import 'package:instagram_clone/models/user_story.dart';
-import 'package:instagram_clone/screens/story/dashed_circle.dart';
-import 'package:instagram_clone/screens/story/rect_getter.dart';
 import 'package:instagram_clone/screens/story/story_view.dart';
 import 'package:instagram_clone/services.dart';
 import 'package:instagram_clone/widgets/story/components/stories_list_skeleton.dart';
 import 'package:instagram_clone/page_animations/page_routes_animation.dart';
-import 'package:instagram_clone/widgets/story_button.dart';
 
 // ignore: must_be_immutable
 
@@ -26,8 +20,6 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
-  GlobalKey<RectGetterState> reactGetterkey = RectGetter.createGlobalKey();
-  Rect? rect;
   AnimationController? storyAnimationController;
   Animation? storycolorAnimation;
 
@@ -63,20 +55,20 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
               height: 32,
             ),
             actions: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: IconButton(
-                  icon: const Icon(Icons.favorite),
-                  onPressed: () {},
-                ),
+              IconButton(
+                icon: const Icon(Icons.favorite_border_outlined),
+                onPressed: () {},
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: IconButton(
-                  icon: const Icon(Icons.message),
-                  onPressed: () {},
-                ),
+              SizedBox(
+                width: 8,
               ),
+              IconButton(
+                icon: const Icon(Icons.near_me_sharp),
+                onPressed: () {},
+              ),
+              SizedBox(
+                width: 8,
+              )
             ],
           ),
           SizedBox(
@@ -185,41 +177,28 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                                 InkWell(
                                   splashColor: Colors.transparent,
                                   onTap: () {
-                                    Navigator.of(context)
-                                        .push(
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((timeStamp) {
+                                      Future.delayed(Duration(seconds: 1), () {
+                                        Navigator.of(context).push(
                                           FadeRouteBuilder(
                                             page: StoryFeedView(
                                               initialPage: index,
-                                                stories: user.stories!,
-                                                //  [
-                                                //   UserStoryList(
-                                                //       user: User(
-                                                //         name: 'The Flutter Pro fit',
-                                                //         profileImageUrl:
-                                                //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
-                                                //       ),
-                                                //       story: stories),
-                                                //   UserStoryList(
-                                                //       user: User(
-                                                //         name: 'The Flutter Pro fit 1',
-                                                //         profileImageUrl:
-                                                //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
-                                                //       ),
-                                                //       story: stories),
-                                                //   UserStoryList(
-                                                //       user: User(
-                                                //         name: 'The Flutter Pro fit 2',
-                                                //         profileImageUrl:
-                                                //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
-                                                //       ),
-                                                //       story: stories),
-                                                // ],
-                                                // herotagString: '${user.userId}',
-                                                ),
+                                            ),
                                           ),
-                                        )
-                                        .then((value) =>
-                                            setState(() => rect = null));
+                                        );
+                                      });
+                                    });
+
+                                    // Navigator.of(context).push(
+                                    //   FadeRouteBuilder(
+                                    //     page: StoryFeedView(
+                                    //       initialPage: index,
+                                    //     ),
+                                    //   ),
+                                    // );
+                                    // .then((value) =>
+                                    //     setState(() => rect = null));
                                     // Navigator.push(
                                     //   context,
                                     //   NoAnimationMaterialPageRoute(
@@ -263,8 +242,10 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                                               width: 72,
                                               height: 72,
                                             ),
-                                            errorWidget: (context, url, error) =>
-                                                const Icon(Icons.error, size: 72),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error,
+                                                        size: 72),
                                           ),
                                         ),
                                       ),
@@ -364,7 +345,16 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                             'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
                           ),
                         ),
-                        title: Text('abhishek.vedant'),
+                        dense: true,
+                        visualDensity: VisualDensity.compact,
+                        title: Text('mahe',
+                            style: const TextStyle(
+                              fontSize: 12,
+                            )),
+                        subtitle: Text('India',
+                            style: const TextStyle(
+                              fontSize: 10,
+                            )),
                         trailing: Icon(Icons.more_vert),
                       ),
                       Image.network(
@@ -374,15 +364,15 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.favorite_border),
+                            icon: const Icon(Icons.favorite_border, size: 16),
                             onPressed: () {},
                           ),
                           IconButton(
-                            icon: const Icon(Icons.comment),
+                            icon: const Icon(Icons.comment, size: 16),
                             onPressed: () {},
                           ),
                           IconButton(
-                            icon: const Icon(Icons.send),
+                            icon: const Icon(Icons.send, size: 16),
                             onPressed: () {},
                           ),
                         ],
@@ -398,198 +388,198 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
     );
   }
 
-  void onStoryItemTap(reactpoint, index) {
-    setState(() => rect = reactpoint);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      setState(() =>
-          rect = rect!.inflate(1.3 * MediaQuery.of(context).size.longestSide));
-      storyAnimationController!.forward();
-      Future.delayed(animationDuration, () {
-        User user = User(
-          name: 'presence.fit',
-          profileImageUrl:
-              'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
-        );
+  // void onStoryItemTap(reactpoint, index) {
+  //   setState(() => rect = reactpoint);
+  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+  //     setState(() =>
+  //         rect = rect!.inflate(1.3 * MediaQuery.of(context).size.longestSide));
+  //     storyAnimationController!.forward();
+  //     Future.delayed(animationDuration, () {
+  //       User user = User(
+  //         name: 'presence.fit',
+  //         profileImageUrl:
+  //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
+  //       );
 
-        List<Story> stories = [
-          Story(
-            url:
-                'https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_1280.jpg',
-            media: MediaType.image,
-            // user: user,
-            duration: Duration(seconds: 5),
-          ),
-          Story(
-            url: 'assets/v1.mp4',
-            media: MediaType.video,
-            duration: Duration(seconds: 0),
-            // user: user,
-          ),
-          Story(
-            url: 'assets/v2.mp4',
-            media: MediaType.video,
-            duration: Duration(seconds: 0),
-            // user: user,
-          ),
-          Story(
-            url:
-                'https://images.unsplash.com/photo-1531694611353-d4758f86fa6d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=564&q=80',
-            media: MediaType.image,
-            duration: Duration(seconds: 5),
-            // user: user,
-          ),
-          Story(
-            url: 'assets/v3.mp4',
-            media: MediaType.video,
-            duration: Duration(seconds: 0),
-            // user: user,
-          ),
-        ];
-        Navigator.of(context)
-            .push(
-              FadeRouteBuilder(
-                page: StoryFeedView(
-                    stories: stories,
-                    //  [
-                    //   UserStoryList(
-                    //       user: User(
-                    //         name: 'The Flutter Pro fit',
-                    //         profileImageUrl:
-                    //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
-                    //       ),
-                    //       story: stories),
-                    //   UserStoryList(
-                    //       user: User(
-                    //         name: 'The Flutter Pro fit 1',
-                    //         profileImageUrl:
-                    //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
-                    //       ),
-                    //       story: stories),
-                    //   UserStoryList(
-                    //       user: User(
-                    //         name: 'The Flutter Pro fit 2',
-                    //         profileImageUrl:
-                    //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
-                    //       ),
-                    //       story: stories),
-                    // ],
-                    // herotagString: 'index$index',
-                    ),
-              ),
-            )
-            .then((value) => setState(() => rect = null));
-      });
-    });
-  }
+  //       List<Story> stories = [
+  //         Story(
+  //           url:
+  //               'https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_1280.jpg',
+  //           media: MediaType.image,
+  //           // user: user,
+  //           duration: Duration(seconds: 5),
+  //         ),
+  //         Story(
+  //           url: 'assets/v1.mp4',
+  //           media: MediaType.video,
+  //           duration: Duration(seconds: 0),
+  //           // user: user,
+  //         ),
+  //         Story(
+  //           url: 'assets/v2.mp4',
+  //           media: MediaType.video,
+  //           duration: Duration(seconds: 0),
+  //           // user: user,
+  //         ),
+  //         Story(
+  //           url:
+  //               'https://images.unsplash.com/photo-1531694611353-d4758f86fa6d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=564&q=80',
+  //           media: MediaType.image,
+  //           duration: Duration(seconds: 5),
+  //           // user: user,
+  //         ),
+  //         Story(
+  //           url: 'assets/v3.mp4',
+  //           media: MediaType.video,
+  //           duration: Duration(seconds: 0),
+  //           // user: user,
+  //         ),
+  //       ];
+  //       Navigator.of(context)
+  //           .push(
+  //             FadeRouteBuilder(
+  //               page: StoryFeedView(
+  //                   // stories: stories,
+  //                   //  [
+  //                   //   UserStoryList(
+  //                   //       user: User(
+  //                   //         name: 'The Flutter Pro fit',
+  //                   //         profileImageUrl:
+  //                   //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
+  //                   //       ),
+  //                   //       story: stories),
+  //                   //   UserStoryList(
+  //                   //       user: User(
+  //                   //         name: 'The Flutter Pro fit 1',
+  //                   //         profileImageUrl:
+  //                   //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
+  //                   //       ),
+  //                   //       story: stories),
+  //                   //   UserStoryList(
+  //                   //       user: User(
+  //                   //         name: 'The Flutter Pro fit 2',
+  //                   //         profileImageUrl:
+  //                   //             'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg',
+  //                   //       ),
+  //                   //       story: stories),
+  //                   // ],
+  //                   // herotagString: 'index$index',
+  //                   ),
+  //             ),
+  //           )
+  //           .then((value) => setState(() => rect = null));
+  //     });
+  //   });
+  // }
 
-  Widget rippleAnimation() {
-    if (rect == null) {
-      return const Offstage();
-    }
-    return AnimatedPositioned(
-      left: rect!.left,
-      right: MediaQuery.of(context).size.width - rect!.right,
-      top: rect!.top,
-      bottom: MediaQuery.of(context).size.height - rect!.bottom,
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: storycolorAnimation!.value,
-        ),
-      ),
-      duration: animationDuration,
-    );
-  }
+  // Widget rippleAnimation() {
+  //   if (rect == null) {
+  //     return const Offstage();
+  //   }
+  //   return AnimatedPositioned(
+  //     left: rect!.left,
+  //     right: MediaQuery.of(context).size.width - rect!.right,
+  //     top: rect!.top,
+  //     bottom: MediaQuery.of(context).size.height - rect!.bottom,
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         shape: BoxShape.circle,
+  //         color: storycolorAnimation!.value,
+  //       ),
+  //     ),
+  //     duration: animationDuration,
+  //   );
+  // }
 }
 
-class UserStoryItem extends StatefulWidget {
-  const UserStoryItem(
-      {Key? key, required this.index, required this.setRectPoint})
-      : super(key: key);
+// class UserStoryItem extends StatefulWidget {
+//   const UserStoryItem(
+//       {Key? key, required this.index, required this.setRectPoint})
+//       : super(key: key);
 
-  final int index;
-  final Function(Rect?) setRectPoint;
-  @override
-  _UserStoryItemState createState() => _UserStoryItemState();
-}
+//   final int index;
+//   final Function(Rect?) setRectPoint;
+//   @override
+//   _UserStoryItemState createState() => _UserStoryItemState();
+// }
 
-class _UserStoryItemState extends State<UserStoryItem>
-    with TickerProviderStateMixin {
-  /// Variables
-  late Animation<double> gap;
-  late Animation<double> base;
-  late Animation<double> reverse;
-  AnimationController? animationController;
-  Rect? rect;
-  GlobalKey touchPoint = GlobalKey();
+// class _UserStoryItemState extends State<UserStoryItem>
+//     with TickerProviderStateMixin {
+//   /// Variables
+//   late Animation<double> gap;
+//   late Animation<double> base;
+//   late Animation<double> reverse;
+//   AnimationController? animationController;
+//   Rect? rect;
+//   GlobalKey touchPoint = GlobalKey();
 
-  @override
-  void initState() {
-    super.initState();
-    animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 10));
-    base = CurvedAnimation(parent: animationController!, curve: Curves.easeOut);
-    reverse = Tween<double>(begin: 0.0, end: -1.0).animate(base);
-    gap = Tween<double>(begin: 3.0, end: 0.0).animate(base)
-      ..addListener(() {
-        setState(() {});
-      });
-    animationController!.forward();
-    animationController!.addListener(() {
-      if (animationController!.isCompleted) {
-        animationController!.repeat();
-      }
-    });
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     animationController =
+//         AnimationController(vsync: this, duration: const Duration(seconds: 10));
+//     base = CurvedAnimation(parent: animationController!, curve: Curves.easeOut);
+//     reverse = Tween<double>(begin: 0.0, end: -1.0).animate(base);
+//     gap = Tween<double>(begin: 3.0, end: 0.0).animate(base)
+//       ..addListener(() {
+//         setState(() {});
+//       });
+//     animationController!.forward();
+//     animationController!.addListener(() {
+//       if (animationController!.isCompleted) {
+//         animationController!.repeat();
+//       }
+//     });
+//   }
 
-  @override
-  void dispose() {
-    animationController!.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     animationController!.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8),
-      child: GestureDetector(
-        key: touchPoint,
-        behavior: HitTestBehavior.opaque,
-        onTapUp: (detalis) {
-          var object = touchPoint.currentContext?.findRenderObject();
-          var translation = object?.getTransformTo(null).getTranslation();
-          var size = object?.semanticBounds.size;
-          rect = Rect.fromLTWH(
-              translation!.x, translation.y, size!.width, size.height);
-          widget.setRectPoint(rect);
-        },
-        child: Hero(
-          tag: "index${widget.index}",
-          transitionOnUserGestures: true,
-          child: Container(
-            alignment: Alignment.center,
-            child: RotationTransition(
-              turns: base,
-              child: DashedCircle(
-                gapSize: gap.value,
-                dashes: 20,
-                // color: const Color(0xffed4634),
-                child: RotationTransition(
-                  turns: reverse,
-                  child: const Padding(
-                    padding: EdgeInsets.all(5.0),
-                    child: CircleAvatar(
-                      radius: 30.0,
-                      backgroundImage: NetworkImage(
-                          'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg'),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: EdgeInsets.symmetric(horizontal: 8),
+//       child: GestureDetector(
+//         key: touchPoint,
+//         behavior: HitTestBehavior.opaque,
+//         onTapUp: (detalis) {
+//           var object = touchPoint.currentContext?.findRenderObject();
+//           var translation = object?.getTransformTo(null).getTranslation();
+//           var size = object?.semanticBounds.size;
+//           rect = Rect.fromLTWH(
+//               translation!.x, translation.y, size!.width, size.height);
+//           widget.setRectPoint(rect);
+//         },
+//         child: Hero(
+//           tag: "index${widget.index}",
+//           transitionOnUserGestures: true,
+//           child: Container(
+//             alignment: Alignment.center,
+//             child: RotationTransition(
+//               turns: base,
+//               child: DashedCircle(
+//                 gapSize: gap.value,
+//                 dashes: 20,
+//                 // color: const Color(0xffed4634),
+//                 child: RotationTransition(
+//                   turns: reverse,
+//                   child: const Padding(
+//                     padding: EdgeInsets.all(5.0),
+//                     child: CircleAvatar(
+//                       radius: 30.0,
+//                       backgroundImage: NetworkImage(
+//                           'http://m.gettywallpapers.com/wp-content/uploads/2021/03/Cool-HD-Wallpaper.jpg'),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

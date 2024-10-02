@@ -1,5 +1,3 @@
-import 'package:instagram_clone/models/user_model.dart';
-
 enum MediaType { image, video }
 
 class Story {
@@ -64,8 +62,7 @@ DateTime parseDateString(String dateString) {
 
   // Ensure we have both date and time
   if (dateTimeParts.length != 2) {
-    throw FormatException(
-        'Invalid date format: expected "YYYY-MM-DDTHH:MM:SS"');
+    return DateTime.now(); // Return current date if format is invalid
   }
 
   String datePart = dateTimeParts[0];
@@ -73,46 +70,25 @@ DateTime parseDateString(String dateString) {
 
   // Split date and ensure zero padding
   List<String> dateParts = datePart.split('-');
-  if (dateParts.length != 3) {
-    throw FormatException('Invalid date format: expected "YYYY-MM-DD"');
-  }
+  int yearInt = 1, monthInt = 1, dayInt = 1; // Default values
 
-  String year = dateParts[0];
-  String month = dateParts[1];
-  String day = dateParts[2];
+  if (dateParts.length == 3) {
+    yearInt = int.tryParse(dateParts[0]) ?? 1;
+    monthInt = int.tryParse(dateParts[1]) ?? 1;
+    dayInt = int.tryParse(dateParts[2]) ?? 1;
+  }
 
   // Validate year, month, and day
-  int yearInt = int.tryParse(year) ?? 1; // Default to 1 if parsing fails
-  int monthInt = int.tryParse(month) ?? 1; // Default to 1 if parsing fails
-  int dayInt = int.tryParse(day) ?? 1; // Default to 1 if parsing fails
-
-  // Adjust values to be at least 1
   yearInt = yearInt < 1 ? 1 : yearInt;
-  monthInt = monthInt < 1 ? 1 : monthInt;
-  dayInt = dayInt < 1 ? 1 : dayInt;
-
-  // Check for valid month
-  if (monthInt < 1 || monthInt > 12) {
-    throw FormatException('Invalid month: $month');
-  }
-
-  // Get the last day of the month
-  int maxDays =
-      DateTime(yearInt, monthInt + 1, 0).day; // Get last day of the month
-
-  if (dayInt < 1 || dayInt > maxDays) {
-    throw FormatException('Invalid day: $day for month: $month');
-  }
+  monthInt = monthInt < 1 ? 1 : monthInt > 12 ? 12 : monthInt;
+  int maxDays = DateTime(yearInt, monthInt + 1, 0).day; // Get last day of the month
+  dayInt = dayInt < 1 ? 1 : dayInt > maxDays ? maxDays : dayInt;
 
   // Split time and ensure zero padding
   List<String> timeParts = timePart.split(':');
   String hour = timeParts[0].padLeft(2, '0'); // Ensure two digits
-  String minute = timeParts.length > 1
-      ? timeParts[1].padLeft(2, '0')
-      : '00'; // Ensure two digits
-  String second = timeParts.length > 2
-      ? timeParts[2].padLeft(2, '0')
-      : '00'; // Default to zero if not present
+  String minute = timeParts.length > 1 ? timeParts[1].padLeft(2, '0') : '00'; // Ensure two digits
+  String second = timeParts.length > 2 ? timeParts[2].padLeft(2, '0') : '00'; // Default to zero if not present
 
   // Construct the corrected date string
   String correctedDateString =
@@ -122,6 +98,7 @@ DateTime parseDateString(String dateString) {
     DateTime dateTime = DateTime.parse(correctedDateString);
     return dateTime;
   } catch (e) {
-    throw FormatException('Error parsing date: $e');
+    // If parsing fails, return the current date
+    return DateTime.now();
   }
 }

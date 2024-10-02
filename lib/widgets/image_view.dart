@@ -23,6 +23,7 @@ class ImageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('inside image view');
     return CachedNetworkImage(
       imageUrl: story.url,
       fit: BoxFit.fill,
@@ -31,10 +32,19 @@ class ImageView extends StatelessWidget {
       // placeholder: (context, url) => const Center(
       //   child: CircularProgressIndicator(),
       // ),
-      progressIndicatorBuilder: (context, url, downloadProgress) =>
-          CircularProgressIndicator(value: downloadProgress.progress),
+      progressIndicatorBuilder: (context, url, downloadProgress) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            value: downloadProgress.progress,
+            color: Colors.white,
+          ),
+        ],
+      ),
       // Use AnimatedOpacity to create a fade-in effect
       imageBuilder: (context, imageProvider) {
+        print('inside image view builder');
         return AnimatedOpacity(
           opacity: 1.0,
           duration: const Duration(milliseconds: 500),
@@ -52,6 +62,7 @@ class ImageView extends StatelessWidget {
       cacheManager: DefaultCacheManager(),
       // Error widget if the image fails to load
       errorWidget: (context, url, error) {
+        print('inside image view error');
         return const Icon(Icons.error);
       },
     );
